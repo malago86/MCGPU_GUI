@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>MCGPUI</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <style>
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        #newWindow {
+            display: block;
+            position: absolute;
+            bottom: 0.3em;
+            left: 0.5em;
+            color: #fff;
+        }
+    </style>
+
+    <script type="module" src="js/module.js"></script>
+</head>
+
+<body>
+    <h1>MCGPUI</h1>
+    <div id="panel">
+        <h2>Model size</h2>
+        X: <input id="model-size-x" type="range" min="1" max="1000" value="100">
+        Y: <input id="model-size-y" type="range" min="1" max="1000" value="30">
+        Z: <input id="model-size-z" type="range" min="1" max="1000" value="100">
+        <h2>Source position</h2>
+        X: <input id="source-x" type="range" min="-1000" max="1000" value="0">
+        Y: <input id="source-y" type="range" min="1" max="1000" value="100">
+        Z: <input id="source-z" type="range" min="-1000" max="1000" value="0">
+        Aperture: <input id="source-aperture" type="range" min="1" max="100" value="50">
+    </div>
+    <div id="canvas"></div>
+</body>
+
+</html>

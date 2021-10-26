@@ -20,7 +20,12 @@
             color: #fff;
         }
     </style>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
+        integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="module" src="js/module.js"></script>
 </head>
 
@@ -28,16 +33,31 @@
     <h1>MCGPUI</h1>
     <div id="panel">
         <h2>Model size</h2>
-        X: <input id="model-size-x" type="range" min="1" max="1000" value="100">
-        Y: <input id="model-size-y" type="range" min="1" max="1000" value="30">
-        Z: <input id="model-size-z" type="range" min="1" max="1000" value="100">
+        <div>X: <input id="model-size-x-val" type="number" min="1" max="1000" value="100"> </div><input
+            id="model-size-x" type="range" min="1" max="1000" value="100">
+        <div>Y: <input id="model-size-y-val" type="number" min="1" max="1000" value="30"></div><input id="model-size-y"
+            type="range" min="1" max="1000" value="30">
+        <div>Z: <input id="model-size-z-val" type="number" min="1" max="1000" value="100"></div><input id="model-size-z"
+            type="range" min="1" max="1000" value="100">
         <h2>Source position</h2>
-        X: <input id="source-x" type="range" min="-1000" max="1000" value="0">
-        Y: <input id="source-y" type="range" min="1" max="1000" value="100">
-        Z: <input id="source-z" type="range" min="-1000" max="1000" value="0">
-        Aperture: <input id="source-aperture" type="range" min="1" max="100" value="50">
+        <div>X: <input id="source-x-val" type="number" min="1" max="1000" value="0"></div><input id="source-x"
+            type="range" min="-1000" max="1000" value="0">
+        <div>Y: <input id="source-y-val" type="number" min="1" max="1000" value="100"></div><input id="source-y"
+            type="range" min="1" max="1000" value="100">
+        <div>Z: <input id="source-z-val" type="number" min="1" max="1000" value="0"></div><input id="source-z"
+            type="range" min="-1000" max="1000" value="0">
+        <div>Aperture: <input id="source-aperture-val" type="number" min="1" max="1000" value="50"></div> <input
+            id="source-aperture" type="range" min="1" max="100" value="50">
+        <h2>Other parameters:</h2>
+        <div id="mcgpu-other">
+
+        </div>
     </div>
     <div id="canvas"></div>
+    <div id="download">Download file</div>
+    <div id="mcgpu">
+
+    </div>
 </body>
 
 </html>

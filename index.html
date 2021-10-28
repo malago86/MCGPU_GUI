@@ -26,17 +26,30 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
         integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"
+        integrity="sha256-hlKLmzaRlE8SCJC1Kw8zoUbU8BxA+8kR3gseuKfMjxA=" crossorigin="anonymous"></script>
     <script type="module" src="js/module.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.13.0/themes/dot-luv/jquery-ui.css">
 </head>
 
 <body>
     <h1>MCGPUI</h1>
     <div id="panel">
         <h2>Model size</h2>
-        <div>X: <input id="model-size-x-val" type="number" min="1" max="1000" value="100"> </div><input
-            id="model-size-x" type="range" min="1" max="1000" value="100">
-        <div>Y: <input id="model-size-y-val" type="number" min="1" max="1000" value="30"></div><input id="model-size-y"
-            type="range" min="1" max="1000" value="30">
+
+        <div>X: <input id="model-size-x-val" class="slider-value mcgpu-slider" value="100">
+            <div class="slider" id="model-size-x" slider-min="1" slider-max="1000" svalue="100">
+            </div>
+        </div>
+        <!-- <div>X:
+            <input id="model-size-x-val" type="number" min="1" max="1000" value="100">
+        </div><input id="model-size-x" type="range" min="1" max="1000" value="100"> -->
+        <!-- <div>Y: <input id="model-size-y-val" type="number" min="1" max="1000" value="30"></div><input id="model-size-y"
+            type="range" min="1" max="1000" value="30"> -->
+        <div>Y: <input id="model-size-y-val" class="slider-value mcgpu-slider" value="100">
+            <div class="slider" id="model-size-y" slider-min="1" slider-max="1000" svalue="30">
+            </div>
+        </div>
         <div>Z: <input id="model-size-z-val" type="number" min="1" max="1000" value="100"></div><input id="model-size-z"
             type="range" min="1" max="1000" value="100">
         <h2>Source position</h2>

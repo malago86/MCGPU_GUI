@@ -25,12 +25,12 @@ function init() {
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, 400);
+    renderer.setSize(window.innerWidth - 300, 400);
     document.getElementById("canvas").appendChild(renderer.domElement);
 
     // camera
 
-    camera = new THREE.PerspectiveCamera(40, window.innerWidth / 400, 1, 10000);
+    camera = new THREE.PerspectiveCamera(40, (window.innerWidth - 300) / 400, 1, 10000);
     camera.position.set(300, 300, 300);
     scene.add(camera);
 
@@ -103,10 +103,10 @@ function init() {
 
 function onWindowResize() {
 
-    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = (window.innerWidth - 300) / 400;
     camera.updateProjectionMatrix();
 
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(window.innerWidth - 300, 400);
 
 }
 
@@ -117,8 +117,8 @@ function animate() {
     // group.rotation.y += 0.005;
 
     let x, y, z, aperture;
-    x = parseInt(document.getElementById("model-size-x").value);
-    y = parseInt(document.getElementById("model-size-y").value);
+    x = parseInt(document.getElementById("model-size-x-val").value);
+    y = parseInt(document.getElementById("model-size-y-val").value);
     z = parseInt(document.getElementById("model-size-z").value);
 
     // console.log(x, y, z);
@@ -201,6 +201,9 @@ var mcgpu_dict = {
     "phantom_file": undefined,
     "voxel_geometry_offset": [0, 0, 0],
     "number_voxels": [810, 1920, 745],
+    "model-size-x": 810,
+    "model-size-y": 1920,
+    "model-size-z": 745,
     "voxel_size": [0.005, 0.005, 0.005],
     "low_resolution_voxel_size": [0, 0, 0]
 };
@@ -210,8 +213,7 @@ $(document).ready(function () {
         mcgpu_dict[$(this).attr("id")] = $(this).val();
         generateMCGPU();
     });
-    $('input[type="range"]').change(function () {
-        // console.log(id + "-val"));
+    $('input.slider-value').change(function () {
         $("#" + $(this).attr("id") + "-val").val($(this).val());
 
         mcgpu_dict["source_position"] = [$("#source-x").val(), $("#source-z").val(), $("#source-y").val()];
@@ -231,11 +233,37 @@ $(document).ready(function () {
         $("#mcgpu-other").append("<div>" + key + ': <input class="other" id="' + key + '" value="' + mcgpu_dict[key] + '"></div>')
     }
 
+    var createSlider = function (div) {
+        var slide = $(div).slider({
+            range: "min",
+            slide: function (event, ui) {
+                $("#" + div.attr("id") + "-val").val(ui.value);
+                mcgpu_dict[div.attr("id")] = ui.value;
+                generateMCGPU();
+            },
+            min: parseInt(div.attr("slider-min")),
+            max: parseInt(div.attr("slider-max")),
+            value: parseInt(div.attr("svalue")),
+        });
+        $("#" + div.attr("id") + "-val").val(div.attr("svalue"));
+    };
+    createSlider($("#model-size-x"));
+    createSlider($("#model-size-y"));
+
+    $(document).on("change", 'input.slider-value', function () {
+        var id = $(this).attr("id");
+        var id2 = id.substring(0, id.length - 4);
+        $("#" + id2).slider("value", $(this).val());
+        mcgpu_dict[id2] = $(this).val();
+        generateMCGPU();
+    });
 });
+
+
 
 function generateMCGPU() {
     var template = Handlebars.compile(mcgpu_template);
-
+    // console.log(mcgpu_dict);
     $("#mcgpu").html(template(mcgpu_dict)).wrap('<pre />');
 }
 

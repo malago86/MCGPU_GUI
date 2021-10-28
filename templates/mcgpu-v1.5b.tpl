@@ -70,7 +70,7 @@
 #[SECTION VOXELIZED GEOMETRY FILE v.2017-07-26]
 {{phantom_file}}    # VOXEL GEOMETRY FILE (penEasy 2008 format; .gz accepted)
 {{voxel_geometry_offset}}              # OFFSET OF THE VOXEL GEOMETRY (DEFAULT ORIGIN AT LOWER BACK CORNER) [cm]
-{{number_voxels}}              # NUMBER OF VOXELS: INPUT A 0 TO READ ASCII FORMAT WITH HEADER SECTION, RAW VOXELS WILL BE READ OTHERWISE
+{{model-size-x}} {{model-size-y}} {{model-size-z}}             # NUMBER OF VOXELS: INPUT A 0 TO READ ASCII FORMAT WITH HEADER SECTION, RAW VOXELS WILL BE READ OTHERWISE
 {{voxel_size}}           # VOXEL SIZES [cm]
 {{low_resolution_voxel_size}}                          # SIZE OF LOW RESOLUTION VOXELS THAT WILL BE DESCRIBED BY A BINARY TREE, GIVEN AS POWERS OF TWO (eg, 2 2 3 = 2^2x2^2x2^3 = 128 input voxels per low res voxel; 0 0 0 disables tree)
  

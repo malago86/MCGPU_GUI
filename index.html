@@ -37,28 +37,37 @@
     <div id="panel">
         <h2>Model size</h2>
 
-        <div>X: <input id="model-size-x-val" class="slider-value mcgpu-slider" value="100">
-            <div class="slider" id="model-size-x" slider-min="1" slider-max="1000" svalue="100">
+        <div>X: <input id="model-size-x-val" class="slider-value mcgpu-slider" value="810">
+            <div class="slider" id="model-size-x" slider-min="1" slider-max="5000" svalue="810">
             </div>
         </div>
-        <!-- <div>X:
-            <input id="model-size-x-val" type="number" min="1" max="1000" value="100">
-        </div><input id="model-size-x" type="range" min="1" max="1000" value="100"> -->
-        <!-- <div>Y: <input id="model-size-y-val" type="number" min="1" max="1000" value="30"></div><input id="model-size-y"
-            type="range" min="1" max="1000" value="30"> -->
-        <div>Y: <input id="model-size-y-val" class="slider-value mcgpu-slider" value="100">
-            <div class="slider" id="model-size-y" slider-min="1" slider-max="1000" svalue="30">
+        <div>Y: <input id="model-size-y-val" class="slider-value mcgpu-slider" value="1920">
+            <div class="slider" id="model-size-y" slider-min="1" slider-max="5000" svalue="1920">
             </div>
         </div>
-        <div>Z: <input id="model-size-z-val" type="number" min="1" max="1000" value="100"></div><input id="model-size-z"
-            type="range" min="1" max="1000" value="100">
+        <div>Z: <input id="model-size-z-val" class="slider-value mcgpu-slider" value="745">
+            <div class="slider" id="model-size-z" slider-min="1" slider-max="5000" svalue="745">
+            </div>
+        </div>
         <h2>Source position</h2>
-        <div>X: <input id="source-x-val" type="number" min="1" max="1000" value="0"></div><input id="source-x"
+        <div>X: <input id="source-x-val" class="slider-value mcgpu-slider" value="0">
+            <div class="slider" id="source-x" slider-min="1" slider-max="5000" svalue="0" mult="0.01">
+            </div>
+        </div>
+        <div>Y: <input id="source-y-val" class="slider-value mcgpu-slider" value="4.8">
+            <div class="slider" id="source-y" slider-min="1" slider-max="5000" svalue="483" mult="0.01">
+            </div>
+        </div>
+        <div>Z: <input id="source-z-val" class="slider-value mcgpu-slider" value="63">
+            <div class="slider" id="source-z" slider-min="1" slider-max="5000" svalue="630" mult="0.01">
+            </div>
+        </div>
+        <!-- <div>X: <input id="source-x-val" type="number" min="1" max="1000" value="0"></div><input id="source-x"
             type="range" min="-1000" max="1000" value="0">
         <div>Y: <input id="source-y-val" type="number" min="1" max="1000" value="100"></div><input id="source-y"
             type="range" min="1" max="1000" value="100">
         <div>Z: <input id="source-z-val" type="number" min="1" max="1000" value="0"></div><input id="source-z"
-            type="range" min="-1000" max="1000" value="0">
+            type="range" min="-1000" max="1000" value="0"> -->
         <div>Aperture: <input id="source-aperture-val" type="number" min="1" max="1000" value="50"></div> <input
             id="source-aperture" type="range" min="1" max="100" value="50">
         <h2>Other parameters:</h2>

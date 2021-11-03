@@ -7,152 +7,59 @@ let group, camera, scene, renderer;
 
 let sourceGroup;
 
-let modelGeometry, sourceGeometry, coneGeometry;
+let modelGeometry, sourceGeometry, coneGeometry, detectorGeometry;
 
-let model, source, cone;
+let model, source, cone, coneLines, detector;
 
-const material = new THREE.MeshLambertMaterial({ color: 0x156289, emissive: 0x072534, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
+var vertexShader = `
+    varying vec2 vUv;
+    void main()	{
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+    }
+  `;
+var fragmentShader = `
+		//#extension GL_OES_standard_derivatives : enable
+    
+    varying vec2 vUv;
+    uniform float thickness;
+    uniform float color;
+   	
+    float edgeFactor(vec2 p){
+    	vec2 grid = abs(fract(p - 0.5) - 0.5) / fwidth(p) / thickness;
+  		return min(grid.x, grid.y);
+    }
+    
+    void main() {
+			
+      float a = edgeFactor(vUv);
+      
+      vec3 c = mix(vec3(1), vec3(0), a);
+      //vec4(c, 1.0);
+      float z = gl_FragCoord.z / gl_FragCoord.w;
+      gl_FragColor = max(vec4(0.15, 0.62, 0.9, 1.0),vec4(c, 1.0));
+    }
+  `;
+
+const material = new THREE.ShaderMaterial({
+    side: THREE.DoubleSide,
+    uniforms: {
+        thickness: {
+            value: 1.5
+        },
+        color: {
+            value: [0.15, 0.62, 0.9]
+        }
+    },
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader
+});
 const material2 = new THREE.MeshLambertMaterial({ color: 0xFF0000, emissive: 0x072534, side: THREE.DoubleSide });
-const materialCone = new THREE.MeshLambertMaterial({ color: 0xAA00AA, emissive: 0x072534, side: THREE.DoubleSide, transparent: true, opacity: 0.2 });
+const materialCone = new THREE.MeshLambertMaterial({ color: 0xAA00AA, emissive: 0x072534, side: THREE.DoubleSide, transparent: true, opacity: 0.2, depthWrite: false });
 
+const materialDetector = new THREE.MeshLambertMaterial({ color: 0xAAAAAA, emissive: 0xFF1111 });
 
-init();
-animate();
-
-function init() {
-
-    scene = new THREE.Scene();
-
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth - 300, 400);
-    document.getElementById("canvas").appendChild(renderer.domElement);
-
-    // camera
-
-    camera = new THREE.PerspectiveCamera(40, (window.innerWidth - 300) / 400, 1, 10000);
-    camera.position.set(300, 300, 300);
-    scene.add(camera);
-
-    // controls
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.minDistance = 20;
-    controls.maxDistance = 10000;
-    controls.maxPolarAngle = Math.PI / 2;
-
-    // ambient light
-
-    scene.add(new THREE.AmbientLight(0xaaaaaa));
-
-    // point light
-
-    // const light = new THREE.PointLight(0xffffff, 1, 0);
-    // light.position.set(0, 100, 0);
-    // scene.add(light);
-
-    // const pointLightHelper = new THREE.PointLightHelper(light, 10);
-    // scene.add(pointLightHelper);
-
-    // helper
-
-    scene.add(new THREE.AxesHelper(200));
-
-    // textures
-
-    const loader = new THREE.TextureLoader();
-    // const texture = loader.load('textures/sprites/disc.png');
-
-    group = new THREE.Group();
-    scene.add(group);
-
-    sourceGeometry = new THREE.SphereGeometry(10);
-    modelGeometry = new THREE.BoxGeometry(1, 1, 1);
-
-    model = new THREE.Mesh(modelGeometry, material);
-    group.add(model);
-
-    sourceGroup = new THREE.Group();
-
-    coneGeometry = new THREE.ConeGeometry(100, 200, 100);
-    source = new THREE.Mesh(sourceGeometry, material2);
-    cone = new THREE.Mesh(coneGeometry, materialCone);
-
-    sourceGroup.add(source);
-    // sourceGroup.add(cone);
-
-    group.add(sourceGroup);
-
-    const lights = [];
-    lights[0] = new THREE.PointLight(0xaaaaaa, 1, 0);
-    lights[1] = new THREE.PointLight(0xaaaaaa, 1, 0);
-    lights[2] = new THREE.PointLight(0xaaaaaa, 1, 0);
-
-    lights[0].position.set(0, 200, 0);
-    lights[1].position.set(100, 200, 100);
-    lights[2].position.set(- 100, - 200, - 100);
-
-    scene.add(lights[0]);
-    scene.add(lights[1]);
-    scene.add(lights[2]);
-
-
-    window.addEventListener('resize', onWindowResize);
-
-}
-
-function onWindowResize() {
-
-    camera.aspect = (window.innerWidth - 300) / 400;
-    camera.updateProjectionMatrix();
-
-    renderer.setSize(window.innerWidth - 300, 400);
-
-}
-
-function animate() {
-
-
-
-    // group.rotation.y += 0.005;
-
-    let x, y, z, aperture;
-    x = parseInt(document.getElementById("model-size-x-val").value);
-    y = parseInt(document.getElementById("model-size-y-val").value);
-    z = parseInt(document.getElementById("model-size-z").value);
-
-    // console.log(x, y, z);
-    model.scale.set(x, y, z);
-    model.position.y = y / 2;
-
-    x = parseInt(document.getElementById("source-x").value);
-    y = parseInt(document.getElementById("source-y").value);
-    z = parseInt(document.getElementById("source-z").value);
-    aperture = parseInt(document.getElementById("source-aperture").value);
-
-    source.position.set(x, y, z);
-
-    cone.removeFromParent();
-    cone = new THREE.Mesh(new THREE.ConeGeometry(50 * y / aperture, y, 100), materialCone);
-    cone.position.x = x;
-    cone.position.y = y / 2;
-    cone.position.z = z;
-    scene.add(cone);
-    // sourceGroup.add(cone);
-
-    // console.log(modelGeometry);
-
-    requestAnimationFrame(animate);
-
-    render();
-
-}
-
-function render() {
-
-    renderer.render(scene, camera);
-
-}
+const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
 
 var mcgpu_template = "";
 var mcgpu_dict = {
@@ -200,13 +107,176 @@ var mcgpu_dict = {
     "roi_voxel_dose_z": [250, 250],
     "phantom_file": undefined,
     "voxel_geometry_offset": [0, 0, 0],
-    "number_voxels": [810, 1920, 745],
     "model-size-x": 810,
     "model-size-y": 1920,
     "model-size-z": 745,
     "voxel_size": [0.005, 0.005, 0.005],
     "low_resolution_voxel_size": [0, 0, 0]
 };
+
+init();
+animate();
+
+function init() {
+
+    scene = new THREE.Scene();
+
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth - 300, 400);
+    document.getElementById("canvas").appendChild(renderer.domElement);
+
+    // camera
+
+    camera = new THREE.PerspectiveCamera(40, (window.innerWidth - 300) / 400, 1, 10000);
+    camera.position.set(15, 15, 15);
+    scene.add(camera);
+
+    // controls
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.minDistance = 20;
+    controls.maxDistance = 10000;
+    controls.maxPolarAngle = Math.PI / 2;
+
+    // ambient light
+
+    scene.add(new THREE.AmbientLight(0xaaaaaa));
+
+    // point light
+
+    // const light = new THREE.PointLight(0xffffff, 1, 0);
+    // light.position.set(0, 100, 0);
+    // scene.add(light);
+
+    // const pointLightHelper = new THREE.PointLightHelper(light, 10);
+    // scene.add(pointLightHelper);
+
+    // helper
+
+    scene.add(new THREE.AxesHelper(10));
+
+    // textures
+
+    const loader = new THREE.TextureLoader();
+    // const texture = loader.load('textures/sprites/disc.png');
+
+    group = new THREE.Group();
+    scene.add(group);
+
+    sourceGeometry = new THREE.SphereGeometry(1);
+    modelGeometry = new THREE.BoxGeometry(1, 1, 1);
+
+    model = new THREE.Mesh(modelGeometry, material);
+    group.add(model);
+
+    sourceGroup = new THREE.Group();
+
+    coneGeometry = new THREE.ConeGeometry(100, 4, 100);
+    source = new THREE.Mesh(sourceGeometry, material2);
+    cone = new THREE.Mesh(coneGeometry, materialCone);
+    coneLines = new THREE.LineSegments(coneGeometry, lineMaterial)
+
+    sourceGroup.add(source);
+    // sourceGroup.add(cone);
+
+    group.add(sourceGroup);
+
+    detectorGeometry = new THREE.BoxGeometry(1, 1, 1);
+
+    detector = new THREE.Mesh(detectorGeometry, materialDetector);
+    group.add(detector);
+
+    const lights = [];
+    lights[0] = new THREE.PointLight(0xaaaaaa, 1, 0);
+    lights[1] = new THREE.PointLight(0xaaaaaa, 1, 0);
+    lights[2] = new THREE.PointLight(0xaaaaaa, 1, 0);
+
+    lights[0].position.set(0, 200, 0);
+    lights[1].position.set(100, 200, 100);
+    lights[2].position.set(- 100, - 200, - 100);
+
+    scene.add(lights[0]);
+    scene.add(lights[1]);
+    scene.add(lights[2]);
+
+
+    window.addEventListener('resize', onWindowResize);
+
+}
+
+function onWindowResize() {
+
+    camera.aspect = (window.innerWidth - 300) / 400;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(window.innerWidth - 300, 400);
+
+}
+
+function animate() {
+    let x, y, z, aperture;
+    x = parseInt(document.getElementById("model-size-x-val").value) * mcgpu_dict["voxel_size"][0];
+    y = parseInt(document.getElementById("model-size-y-val").value) * mcgpu_dict["voxel_size"][1];
+    z = parseInt(document.getElementById("model-size-z-val").value) * mcgpu_dict["voxel_size"][2];
+
+    // console.log(x, y, z);
+    model.scale.set(x, z, y);
+    model.position.x = x / 2;
+    model.position.z = y / 2;
+    model.position.y = z / 2;
+
+    detector.scale.set(x, 0.1, y);
+    detector.position.x = x / 2;
+    detector.position.z = y / 2;
+    detector.position.y = -0.1;
+
+    x = parseFloat(document.getElementById("source-x-val").value);
+    y = parseFloat(document.getElementById("source-y-val").value);
+    z = parseFloat(document.getElementById("source-z-val").value);
+    aperture = parseFloat(document.getElementById("source-aperture").value);
+
+    source.position.set(x, z, y);
+
+    cone.removeFromParent();
+    cone = new THREE.Mesh(new THREE.ConeGeometry(50 * z / aperture, z, 4), materialCone);
+    cone.position.x = x;
+    cone.position.y = z / 2;
+    cone.position.z = y;
+    cone.rotateY(45 * Math.PI / 180)
+
+
+    coneLines.removeFromParent();
+    coneLines = new THREE.LineSegments(new THREE.WireframeGeometry(new THREE.ConeGeometry(50 * z / aperture, z, 4)), lineMaterial);
+    coneLines.position.x = x;
+    coneLines.position.y = z / 2;
+    coneLines.position.z = y;
+    coneLines.rotateY(45 * Math.PI / 180)
+    scene.add(cone);
+    scene.add(coneLines);
+
+    // x = parseFloat(document.getElementById("source-x-val").value);
+    // y = parseFloat(document.getElementById("source-y-val").value);
+    // z = parseFloat(document.getElementById("source-z-val").value);
+    // aperture = parseFloat(document.getElementById("source-aperture").value);
+
+
+    // sourceGroup.add(cone);
+
+    // console.log(modelGeometry);
+
+    requestAnimationFrame(animate);
+
+    render();
+
+}
+
+function render() {
+
+    renderer.render(scene, camera);
+
+}
+
 
 $(document).ready(function () {
     $(document).on("change", 'input.other', function () {
@@ -237,24 +307,37 @@ $(document).ready(function () {
         var slide = $(div).slider({
             range: "min",
             slide: function (event, ui) {
-                $("#" + div.attr("id") + "-val").val(ui.value);
-                mcgpu_dict[div.attr("id")] = ui.value;
+                var mult = div.attr("mult");
+                if (mult === undefined)
+                    mult = 1;
+                $("#" + div.attr("id") + "-val").val(parseFloat(ui.value) * parseFloat(mult));
+                mcgpu_dict[div.attr("id")] = parseFloat(ui.value) * parseFloat(mult);
                 generateMCGPU();
             },
             min: parseInt(div.attr("slider-min")),
             max: parseInt(div.attr("slider-max")),
             value: parseInt(div.attr("svalue")),
         });
-        $("#" + div.attr("id") + "-val").val(div.attr("svalue"));
+        var mult = div.attr("mult");
+        if (mult === undefined)
+            mult = 1;
+        $("#" + div.attr("id") + "-val").val(parseFloat(div.attr("svalue")) * parseFloat(mult));
+        mcgpu_dict[div.attr("id")] = parseFloat(div.attr("svalue")) * parseFloat(mult);
     };
     createSlider($("#model-size-x"));
     createSlider($("#model-size-y"));
+    createSlider($("#model-size-z"));
+
+    createSlider($("#source-x"));
+    createSlider($("#source-y"));
+    createSlider($("#source-z"));
 
     $(document).on("change", 'input.slider-value', function () {
         var id = $(this).attr("id");
         var id2 = id.substring(0, id.length - 4);
         $("#" + id2).slider("value", $(this).val());
         mcgpu_dict[id2] = $(this).val();
+        console.log(mcgpu_dict);
         generateMCGPU();
     });
 });

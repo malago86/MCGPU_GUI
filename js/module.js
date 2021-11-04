@@ -7,7 +7,7 @@ let group, camera, scene, renderer;
 
 let sourceGroup;
 
-let modelGeometry, sourceGeometry, coneGeometry, detectorGeometry;
+let modelGeometry, sourceGeometry, coneGeometry, coneLinesGeometry, detectorGeometry;
 
 let model, source, cone, coneLines, detector;
 
@@ -55,11 +55,54 @@ const material = new THREE.ShaderMaterial({
     fragmentShader: fragmentShader
 });
 const material2 = new THREE.MeshLambertMaterial({ color: 0xFF0000, emissive: 0x072534, side: THREE.DoubleSide });
-const materialCone = new THREE.MeshLambertMaterial({ color: 0xAA00AA, emissive: 0x072534, side: THREE.DoubleSide, transparent: true, opacity: 0.2, depthWrite: false });
+const materialCone = new THREE.MeshBasicMaterial({ color: 0xAA00AA, emissive: 0x072534, side: THREE.FrontSide, transparent: true, opacity: 0.5, depthWrite: false });
 
 const materialDetector = new THREE.MeshLambertMaterial({ color: 0xAAAAAA, emissive: 0xFF1111 });
 
 const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
+
+const verticesBeam = new Float32Array([
+    0, 0, 0,
+    .5, 0, .5,
+    0, 0, 1,
+
+    .5, 0, .5,
+    1, 0, 1,
+    0, 0, 1,
+
+    .5, 0, .5,
+    1, 0, 0,
+    1, 0, 1,
+
+    .5, 0, .5,
+    0, 0, 0,
+    1, 0, 0,
+
+    1, 0, 0,
+    0, 0, 0,
+    0, 1, .5,
+
+    0, 0, 1,
+    1, 0, 1,
+    0, 1, .5,
+
+    // 0, 0, 1,
+    // 1, 0, 1,
+    // 0, 0, 0,
+
+    1, 0, 1,
+    1, 0, 0,
+    0, 1, 0.5,
+
+    0, 0, 1,
+    0, 1, 0.5,
+    0, 0, 0,
+]);
+
+
+var mammoBeam = new THREE.BufferGeometry();
+mammoBeam.setAttribute('position', new THREE.BufferAttribute(verticesBeam, 3));
+
 
 var mcgpu_template = "";
 var mcgpu_dict = {
@@ -71,6 +114,9 @@ var mcgpu_dict = {
     "histories_per_thread": 5000,
     "spectrum_file": "./Victre/projection/spectrum/W28kVp_Rh50um_Be1mm.spc",
     "source_position": [0.00001, 4.825, 63.0],
+    "source-x": 0.0,
+    "source-y": 4.825,
+    "source-z": 63.0,
     "source_direction": [0.0, 0.0, -1.0],
     "fam_beam_aperture": [15.0, 7.4686667],
     "euler_angles": [90.0, -90.0, 180.0],
@@ -161,31 +207,34 @@ function init() {
     const loader = new THREE.TextureLoader();
     // const texture = loader.load('textures/sprites/disc.png');
 
-    group = new THREE.Group();
-    scene.add(group);
-
     sourceGeometry = new THREE.SphereGeometry(1);
     modelGeometry = new THREE.BoxGeometry(1, 1, 1);
 
     model = new THREE.Mesh(modelGeometry, material);
-    group.add(model);
+    scene.add(model);
 
     sourceGroup = new THREE.Group();
 
     coneGeometry = new THREE.ConeGeometry(100, 4, 100);
+
     source = new THREE.Mesh(sourceGeometry, material2);
     cone = new THREE.Mesh(coneGeometry, materialCone);
-    coneLines = new THREE.LineSegments(coneGeometry, lineMaterial)
+    coneLines = new THREE.LineSegments(mammoBeam, lineMaterial)
+
 
     sourceGroup.add(source);
     // sourceGroup.add(cone);
-
-    group.add(sourceGroup);
+    sourceGroup.add(coneLines);
+    cone = new THREE.Mesh(mammoBeam, material);
+    sourceGroup.add(cone);
+    scene.add(sourceGroup);
 
     detectorGeometry = new THREE.BoxGeometry(1, 1, 1);
 
     detector = new THREE.Mesh(detectorGeometry, materialDetector);
-    group.add(detector);
+    scene.add(detector);
+
+
 
     const lights = [];
     lights[0] = new THREE.PointLight(0xaaaaaa, 1, 0);
@@ -216,9 +265,9 @@ function onWindowResize() {
 
 function animate() {
     let x, y, z, aperture;
-    x = parseInt(document.getElementById("model-size-x-val").value) * mcgpu_dict["voxel_size"][0];
-    y = parseInt(document.getElementById("model-size-y-val").value) * mcgpu_dict["voxel_size"][1];
-    z = parseInt(document.getElementById("model-size-z-val").value) * mcgpu_dict["voxel_size"][2];
+    x = parseInt(mcgpu_dict["model-size-x"]) * mcgpu_dict["voxel_size"][0];
+    y = parseInt(mcgpu_dict["model-size-y"]) * mcgpu_dict["voxel_size"][1];
+    z = parseInt(mcgpu_dict["model-size-z"]) * mcgpu_dict["voxel_size"][2];
 
     // console.log(x, y, z);
     model.scale.set(x, z, y);
@@ -231,29 +280,30 @@ function animate() {
     detector.position.z = y / 2;
     detector.position.y = -0.1;
 
-    x = parseFloat(document.getElementById("source-x-val").value);
-    y = parseFloat(document.getElementById("source-y-val").value);
-    z = parseFloat(document.getElementById("source-z-val").value);
-    aperture = parseFloat(document.getElementById("source-aperture").value);
+    x = parseFloat(mcgpu_dict["source-x"]);
+    y = parseFloat(mcgpu_dict["source-y"]);
+    z = parseFloat(mcgpu_dict["source-z"]);
+    aperture = parseFloat(mcgpu_dict["fam_beam_aperture"][0]);
 
     source.position.set(x, z, y);
 
     cone.removeFromParent();
-    cone = new THREE.Mesh(new THREE.ConeGeometry(50 * z / aperture, z, 4), materialCone);
-    cone.position.x = x;
-    cone.position.y = z / 2;
-    cone.position.z = y;
-    cone.rotateY(45 * Math.PI / 180)
-
+    // coneGeometry = new THREE.ConeGeometry(15 * z / (101 - aperture), z, 4);
+    // coneGeometry.rotateY(45 * Math.PI / 180)
+    // coneGeometry.scale(0.5, 1, 1);
+    cone = new THREE.Mesh(mammoBeam, materialCone);
+    cone.scale.set(aperture / 2, z, aperture);
+    // cone.position.x = x;
+    // cone.position.y = z / 2;
+    // cone.position.z = y;
 
     coneLines.removeFromParent();
-    coneLines = new THREE.LineSegments(new THREE.WireframeGeometry(new THREE.ConeGeometry(50 * z / aperture, z, 4)), lineMaterial);
-    coneLines.position.x = x;
-    coneLines.position.y = z / 2;
-    coneLines.position.z = y;
-    coneLines.rotateY(45 * Math.PI / 180)
-    scene.add(cone);
-    scene.add(coneLines);
+    coneLines = new THREE.LineSegments(new THREE.WireframeGeometry(mammoBeam), lineMaterial);
+    coneLines.scale.set(aperture / 2, z, aperture);
+    sourceGroup.add(cone);
+    sourceGroup.add(coneLines);
+
+
 
     // x = parseFloat(document.getElementById("source-x-val").value);
     // y = parseFloat(document.getElementById("source-y-val").value);
@@ -312,6 +362,8 @@ $(document).ready(function () {
                     mult = 1;
                 $("#" + div.attr("id") + "-val").val(parseFloat(ui.value) * parseFloat(mult));
                 mcgpu_dict[div.attr("id")] = parseFloat(ui.value) * parseFloat(mult);
+                mcgpu_dict["fam_beam_aperture"][0] = $("#source-aperture-val").val();
+                mcgpu_dict["fam_beam_aperture"][1] = mcgpu_dict["fam_beam_aperture"][0] / 2;
                 generateMCGPU();
             },
             min: parseInt(div.attr("slider-min")),
@@ -331,6 +383,7 @@ $(document).ready(function () {
     createSlider($("#source-x"));
     createSlider($("#source-y"));
     createSlider($("#source-z"));
+    createSlider($("#source-aperture"));
 
     $(document).on("change", 'input.slider-value', function () {
         var id = $(this).attr("id");

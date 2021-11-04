@@ -25,7 +25,7 @@
  
 #[SECTION SOURCE v.2016-12-02]
 {{spectrum_file}} # X-RAY ENERGY SPECTRUM FILE
-{{source_position}}           # SOURCE POSITION: X (chest-to-nipple), Y (right-to-left), Z (caudal-to-cranial) [cm]
+{{source-x}} {{source-y}} {{source-z}}           # SOURCE POSITION: X (chest-to-nipple), Y (right-to-left), Z (caudal-to-cranial) [cm]
 {{source_direction}}             # SOURCE DIRECTION COSINES: U V W
 {{fam_beam_aperture}}    # ==> 2/3 original angle of 11.203       # TOTAL AZIMUTHAL (WIDTH, X) AND POLAR (HEIGHT, Z) APERTURES OF THE FAN BEAM [degrees] (input negative to automatically cover the whole detector)
 {{euler_angles}}             # EULER ANGLES (RzRyRz) TO ROTATE RECTANGULAR BEAM FROM DEFAULT POSITION AT Y=0, NORMAL=(0,-1,0)
